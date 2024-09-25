@@ -1,8 +1,12 @@
 ---
-layout: home
+layout: document
 ---
 
 Version 0.14.0
+
+```danger
+This specification is in early stages of development and incompatible changes will be made without prior notice or backwards compatibility.
+```
 
 <!--
 TODO:
@@ -35,11 +39,11 @@ The above description of the internal operation of the debug server is provided 
 
 The CXXRTL debug server and a debugging client interact by exchanging *messages* according to well-known rules called the *debug server protocol*. The debug server protocol does not define how the messages are transported, but is defined to be easily transported within byte-oriented streams, such as TCP sockets, Unix domain sockets, and Win32 named pipes.
 
-> [!NOTE]
->
-> The CXXRTL debug server protocol may be implemented by any tools that wish to exchange waveform data. Its use is generally encouraged, and not restricted to the Yosys CXXRTL backend and the tools that interact with it.
->
-> There will eventually be a governance process for extending the protocol; while it remains at version 0, the steward of the protocol is [Catherine "whitequark"](mailto:whitequark@whitequark.org).
+```note
+The CXXRTL debug server protocol may be implemented by any tools that wish to exchange waveform data. Its use is generally encouraged, and not restricted to the Yosys CXXRTL backend and the tools that interact with it.
+
+There will eventually be a governance process for extending the protocol; while it remains at version 0, the steward of the protocol is [Catherine "whitequark"](mailto:whitequark@whitequark.org).
+```
 
 Each message is a UTF-8 string followed by the U+0000 *terminating character*, which is not a part of the message. (A message may not contain the terminating character within it.)
 
@@ -105,26 +109,27 @@ The `features` field is a dict indicating which *protocol features* the server s
 
 Opening or closing the connection to the server does not affect the simulation status. However, events emitted while there is no open connection to the server are lost.
 
-> [!NOTE]
->
-> As the protocol is intended for general use, in some cases only a subset of the features may be desirable to implement. For example, a waveform data post-processor has no means to run a simulation. In its greeting message, it should advertise the lack of simulation capabilities:
->
-> ```json
-> {
->     "type": "greeting",
->     "version": 0,
->     "commands": [
->         "list_scopes",
->         "list_items",
->         "reference_items",
->         "query_interval",
->     ],
->     "events": [],
->     "features": {
->         "item_values_encoding": ["base64(u32)"]
->     }
-> }
-> ```
+````note
+
+As the protocol is intended for general use, in some cases only a subset of the features may be desirable to implement. For example, a waveform data post-processor has no means to run a simulation. In its greeting message, it should advertise the lack of simulation capabilities:
+
+```json
+{
+    "type": "greeting",
+    "version": 0,
+    "commands": [
+        "list_scopes",
+        "list_items",
+        "reference_items",
+        "query_interval",
+    ],
+    "events": [],
+    "features": {
+        "item_values_encoding": ["base64(u32)"]
+    }
+}
+```
+````
 
 
 ### Message type: *Command*
@@ -162,9 +167,9 @@ S>C:
 
 A response can have any amount of arguments with any names other than `type` and `command`, and they may be of any type. The structure of the response message is determined by the command name.
 
-> [!NOTE]
->
-> The command name is duplicated in this message to aid debugging, and to allow validating individual response messages using a schema.
+```note
+The command name is duplicated in this message to aid debugging, and to allow validating individual response messages using a schema.
+```
 
 
 ### Message type: *Error*
@@ -336,9 +341,9 @@ The possible types and the correspoinding value formats are:
 * type `"string"` is represented by a string, which is the string value of the attribute;
 * type `"double"` is represented by a floating-point number, which is the double precision value of the attribute.
 
-> [!IMPORTANT]
->
-> The meaning of the attributes that are sent to the client is entirely netlist-specific. Attributes that are used for internal bookkeeping by the CXXRTL debug server (if any) are not sent to the client as a part of an attribute dictionary.
+```warning
+The meaning of the attributes that are sent to the client is entirely netlist-specific. Attributes that are used for internal bookkeeping by the CXXRTL debug server (if any) are not sent to the client as a part of an attribute dictionary.
+```
 
 
 ### Command: *List Items*
@@ -352,9 +357,9 @@ Per the rules above, there can only be one `\u0020` character in a row in a scop
 
 An item is nested within a scope if the identifier of the item begins with the identifier the scope followed by `\u0020`.
 
-> [!NOTE]
->
-> A scope could contain both a nested scope and a nested item with the same name.
+```note
+A scope could contain both a nested scope and a nested item with the same name.
+```
 
 C>S:
 
@@ -461,9 +466,9 @@ A *memory* is a part of a netlist that has a two-dimensional value, representabl
 
 A memory may or may not be settable, which is a property defined during synthesis. By default, all memories (even inferred read-only memories) are settable to permit initialization and patching of memories at the beginning of the simulation.
 
-> [!NOTE]
->
-> At the moment the protocol does not include a command that sets the value of a node, which will be added at a later point.
+```note
+At the moment the protocol does not include a command that sets the value of a node, which will be added at a later point.
+```
 
 
 ### Command: *Reference Items*
@@ -522,9 +527,9 @@ If an item is designated using a syntax not matching its type, an error is retur
 
 The *Query Interval* command allows the client to retrieve the contents of the waveform database for a given time interval. The waveform database stores a time series of samples: for an ordered (non-descending) set of time points, each has associated item values and diagnostics. Thus, the *Query Interval* command selects a subset of time points falling within the given range, and for each time point, it returns the requested data (item values, unless `items` is `null`, and diagnostics, unless `diagnostics` is `false`).
 
-> [!NOTE]
->
-> The overhead of running the *Query Interval* command twice (once to retrieve the item values and once to retrieve the diagnostics) varies depending on the exact contents of the waveform database. In case both are needed, it is always more efficient to run the command once while requesting both.
+```note
+The overhead of running the *Query Interval* command twice (once to retrieve the item values and once to retrieve the diagnostics) varies depending on the exact contents of the waveform database. In case both are needed, it is always more efficient to run the command once while requesting both.
+```
 
 Both the begin and end of the time interval must be between `0.0` and the latest stored time point (as may be retrieved using the *Get Simulation Status* command). If this is not the case an error is returned.
 
@@ -608,19 +613,19 @@ S>C:
 
 Samples are returned in non-descending time order, and the `time` of each returned sample falls within the `range` argument of the command, with the exception of the first sample, whose `time` may be less than the beginning of the range.
 
-> [!NOTE]
->
-> The intent of the *Query Interval* command is to return information for the entirety of the requested range. If only a single time point is of interest (i.e. the begin and end of the time interval are the same), and the waveform database contains a sample before that time point, this command will return that sample even though it does not fall within the range.
->
-> An alternative to this would be to clamp the returned `time` to the requested `range`, but this complicates presentation (making it more difficult to retrieve contents of successive time intervals, e.g. during scrolling), interferes with caching, and misleads the designer, who typically expects the simulation to run with a specific fixed resolution of which all time points are a multiple of.
+```note
+The intent of the *Query Interval* command is to return information for the entirety of the requested range. If only a single time point is of interest (i.e. the begin and end of the time interval are the same), and the waveform database contains a sample before that time point, this command will return that sample even though it does not fall within the range.
+
+An alternative to this would be to clamp the returned `time` to the requested `range`, but this complicates presentation (making it more difficult to retrieve contents of successive time intervals, e.g. during scrolling), interferes with caching, and misleads the designer, who typically expects the simulation to run with a specific fixed resolution of which all time points are a multiple of.
+```
 
 If collapsed samples are requested, there will be only one sample for each time point. This mode is useful for waveform display and general design interaction.
 
 If non-collapsed samples are requested, there may be multiple samples that have the same time point, but differing item values and messages. This mode is useful for obtaining a dump of the replay buffer and for debugging race conditions in zero time. In most circumstances, it should not be necessary to use this mode, and collapsed samples should be requested to reduce overhead of data encoding and transfer.
 
-> [!NOTE]
->
-> Because the simulation can progress without advancement of time, if the end of the requested time interval is the same as the latest time point stored in the waveform database, two subsequent invocations of the *Query Interval* command that requests collapsed samples can have the last sample differ between them. Be mindful of this edge case when displaying samples from a running simulation.
+```warning
+Because the simulation can progress without advancement of time, if the end of the requested time interval is the same as the latest time point stored in the waveform database, two subsequent invocations of the *Query Interval* command that requests collapsed samples can have the last sample differ between them. Be mindful of this edge case when displaying samples from a running simulation.
+```
 
 
 #### Structure: *Time Point*
@@ -640,13 +645,13 @@ A *Time Interval* is an array `[begin, end]` where both `begin` and `end` is a *
 
 *Item Values* in the `base64(u32)` format are represented as a sequence of 32-bit little-endian words encoded using [Base64](https://datatracker.ietf.org/doc/html/rfc4648#section-4), with padding included. The sequence of the words is constructed by concatenating, for each of the items in the order in which they were designated using the *Reference Items* command, their binary representation, from the least to the most significant 32-bit word.
 
-> [!NOTE]
->
-> CXXRTL internally stores item values as sequences of 32-bit words, from least to most significant, using the fewest amount of words sufficient to represent the value. This encoding is not particularly space-efficient (especially for designs with many 1-bit signals; it has an overhead of 32× for fine netlists), but is very uniform. The uniformity allows aggregating item values into arrays of 32-bit integers and storing, for each item, only the offset into the array.
+```note
+CXXRTL internally stores item values as sequences of 32-bit words, from least to most significant, using the fewest amount of words sufficient to represent the value. This encoding is not particularly space-efficient (especially for designs with many 1-bit signals; it has an overhead of 32× for fine netlists), but is very uniform. The uniformity allows aggregating item values into arrays of 32-bit integers and storing, for each item, only the offset into the array.
+```
 
-> [!NOTE]
->
-> Because both the bytes within a word and the words themselves are stored in little-endian form, each individual item value can be treated as a single number, stored in little-endian form, and padded up to the next 4-byte boundary.
+```note
+Because both the bytes within a word and the words themselves are stored in little-endian form, each individual item value can be treated as a single number, stored in little-endian form, and padded up to the next 4-byte boundary.
+```
 
 
 #### Structure: *Diagnostic*
@@ -665,11 +670,11 @@ The possible diagnostic types are `"break"`, `"print"`, `"assert"`, `"assume"`.
 
 The diagnostic text is a string containing arbitrary text that may include embedded newlines, and may or may not be newline-terminated.
 
-> [!NOTE]
->
-> Diagnostics of type `"print"` may be emitted in batches, where only the last diagnostic is guaranteed to be newline-terminated. To be displayed in a manner that is expected by the designer, the client should treat such diagnostics as fragments of text written to a line-buffered stream: instead of immediately displaying each such diagnostic on its own line, the client should reassemble the fragments in a buffer, and display each of the complete lines as they appear in the buffer.
->
-> Diagnostics of type `"break"`, `"assert"`, `"assume"` are self-contained, and their `text` does not include a terminating newline.
+```note
+Diagnostics of type `"print"` may be emitted in batches, where only the last diagnostic is guaranteed to be newline-terminated. To be displayed in a manner that is expected by the designer, the client should treat such diagnostics as fragments of text written to a line-buffered stream: instead of immediately displaying each such diagnostic on its own line, the client should reassemble the fragments in a buffer, and display each of the complete lines as they appear in the buffer.
+
+Diagnostics of type `"break"`, `"assert"`, `"assume"` are self-contained, and their `text` does not include a terminating newline.
+```
 
 The value of `src` is exactly the same as the value of the `src` attribute for the corresponding netlist entity; it is not validated or transformed. If the attribute is not present, the value is `null`.
 
@@ -700,9 +705,9 @@ If either item values or diagnostics are not requested the corresponding field w
 
 The *Get Simulation Status* command queries whether the simulation is running and returns the latest time point that has been stored to the waveform database.
 
-> [!NOTE]
->
-> If the simulation status is `"running"`, then by the time the response is recevied and processed by the client, additional samples may have been added to the waveform database, advancing the latest time point.
+```note
+If the simulation status is `"running"`, then by the time the response is recevied and processed by the client, additional samples may have been added to the waveform database, advancing the latest time point.
+```
 
 C>S:
 
@@ -749,9 +754,9 @@ The *Run Simulation* command starts the simulation, asynchronously to command pr
 * A diagnostic with one of the types specified in the `until_diagnostics` argument is emitted. A *Simulation Paused* event with the `cause` of `"until_diagnostics"` is sent to the client.
 * The simulation is paused by the client with the *Pause Simulation* command. No event is sent.
 
-> [!NOTE]
->
-> It is possible for the simulation to be paused after this command is issued when `latest_time` is less than `until_time`, if the simulation time advances past `until_time`. In this case, no samples at time points beyond `until_time` are added to the simulation database, and the simulation time is returned by the *Get Simulation Status* command in the `next_sample_time` argument.
+```note
+It is possible for the simulation to be paused after this command is issued when `latest_time` is less than `until_time`, if the simulation time advances past `until_time`. In this case, no samples at time points beyond `until_time` are added to the simulation database, and the simulation time is returned by the *Get Simulation Status* command in the `next_sample_time` argument.
+```
 
 If the simulation status is not `"paused"` an error is returned.
 
@@ -769,11 +774,11 @@ C>S:
 
 The `sample_item_values` argument controls whether item values are written to the waveform database. If it is `false`, samples in the time interval from the latest time point when the *Run Simulation* command is sent and until the simulation stops will not have item values (the *Query Interval* command will return `null` in the `item_values` field).
 
-> [!NOTE]
->
-> Essential sample data is still written to the waveform database at the beginning and the end of the time interval that has the sampling disabled, but the overhead of writing this data is minimal.
->
-> Diagnostics are always written to the waveform database.
+```note
+Essential sample data is still written to the waveform database at the beginning and the end of the time interval that has the sampling disabled, but the overhead of writing this data is minimal.
+
+Diagnostics are always written to the waveform database.
+```
 
 S>C:
 

@@ -1,0 +1,104 @@
+// Admonition types: note, tip, info, warning, danger
+
+.admonition {
+  border: 0 solid black;
+  border-left-width: 4px;
+  background-color: #eee;
+  border-radius: 6px;
+  // margin-block: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding: 1em;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+
+  > *:last-child {
+    margin-bottom: 0;
+  }
+
+  @media print {
+    break-inside: avoid-page;
+  }
+
+  // Border colors from https://www.schemecolor.com/pastel-rainbow.php
+  // Other colors from https://docusaurus.io/docs/markdown-features/admonitions
+
+  &.admonition-type-note {
+    border-color: gray;
+    background-color: #f8f8f9;
+  }
+
+  &.admonition-type-tip {
+    border-color: #9ee09e;
+    background-color: #e6f5e6;
+  }
+
+  &.admonition-type-info {
+    border-color: #9ec1cf;
+    background-color: #eef9fc;
+  }
+
+  &.admonition-type-warning {
+    border-color: #feb144;
+    background-color: #fff8e6;
+  }
+
+  &.admonition-type-danger {
+    border-color: #ff6663;
+    background-color: #ffebec;
+  }
+}
+
+.admonition-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+
+  .admonition-type-note & {
+    color: #474748;
+  }
+
+  .admonition-type-tip & {
+    color: #013100;
+  }
+
+  .admonition-type-info & {
+    color: #193c47;
+  }
+
+  .admonition-type-warning & {
+    color: #4d3800;
+  }
+
+  .admonition-type-danger & {
+    color: #4b1013;
+  }
+}
+
+.admonition-title::before {
+  // Guide from https://fontawesome.com/v6/docs/web/add-icons/pseudo-elements
+  display: inline-block;
+  text-rendering: auto;
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900; // Solid icons
+  -webkit-font-smoothing: antialiased;
+  margin-right: 6px;
+
+  .admonition-type-note & {
+    content: "\f02d"; // book
+  }
+
+  .admonition-type-tip & {
+    content: "\f0eb"; // lightbulb
+  }
+
+  .admonition-type-info & {
+    content: "\f05a"; // circle-info
+  }
+
+  .admonition-type-warning & {
+    content: "\f071"; // triangle-exclamation
+  }
+
+  .admonition-type-danger & {
+    content: "\f7e4"; // fire-flame-curved
+  }
+}

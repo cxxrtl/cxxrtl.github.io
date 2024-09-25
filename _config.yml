@@ -1,5 +1,6 @@
 title: CXXRTL Simulation Engine
-baseurl: "/"
+baseurl: ""
 url: "https://cxxrtl.org"
 github_username: cxxrtl
 theme: minima
+input: kramdown

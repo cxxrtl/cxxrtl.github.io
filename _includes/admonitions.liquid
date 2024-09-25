@@ -1,0 +1,32 @@
+{% comment %}
+  Copyright 2022 Richard Dominick
+  Adapted and simplified from
+  https://github.com/kimkyunghwan21/kimkyunghwan21.github.io/blob/master/_layouts/plugins/extension.liquid
+{% endcomment %}
+{%- assign types = "note, tip, info, warning, danger" | split: ", " -%}
+{%- assign nodes = include.html
+  | strip
+  | split: '<pre><code class="language-'
+-%}
+{{ nodes.first }}
+{%- for node in nodes offset:1 -%}
+  {% assign tag = node | split: '">' | first %}
+  {%- if types contains tag -%}
+    {% assign contents = node
+      | replace_first: tag, ''
+      | replace_first: '">', ''
+      | strip
+      | split: '</code></pre>'
+    %}
+    <div class="admonition admonition-type-{{ tag }}">
+      <p class="admonition-title">{{ tag | upcase }}</p>
+      {% capture text %}{% include capturehtml.liquid text=contents.first %}{% endcapture %}
+      {{ text | markdownify }}
+    </div>
+    {%- for tail in contents offset:1 -%}
+      {{ tail }}</code></pre>
+    {%- endfor -%}
+  {%-else -%}
+    <pre><code class="language-{{ node }}
+  {%- endif -%}
+{%- endfor -%}
