@@ -380,7 +380,7 @@ S>C:
 ```json
 {
     "type": "response",
-    "response": "list_items",
+    "command": "list_items",
     "items": {
         "clk": {
             "src": "top.py:15",
@@ -509,7 +509,7 @@ S>C:
 ```json
 {
     "type": "response",
-    "response": "reference_items"
+    "command": "reference_items"
 }
 ```
 
