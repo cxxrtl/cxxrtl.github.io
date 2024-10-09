@@ -233,9 +233,14 @@ C>S:
 ```json
 {
     "type": "command",
-    "command": "list_scopes"
+    "command": "list_scopes",
+    "scope": null
 }
 ```
+
+If the `scope` argument is `null`, the server returns every scope in the simulation.
+
+If not `null`, the `scope` argument allows the client to request scopes that are nested within that scope. Scopes from nested scopes are not returned. Large designs can contain many scopes, and limiting the amount of scopes loaded per request can afford a more responsive UI.
 
 S>C:
 
